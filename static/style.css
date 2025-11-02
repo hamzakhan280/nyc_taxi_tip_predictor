@@ -1,0 +1,26 @@
+.form-select-colored {
+  background-color: #1e3a8a;
+  color: #ffffff;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.form-select-colored:hover,
+.form-select-colored:focus {
+  background-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(37,99,235,0.4);
+}
+
+.card {
+  border-radius: 20px;
+}
+
+.btn-success {
+  background-color: #16a34a;
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #15803d;
+}
