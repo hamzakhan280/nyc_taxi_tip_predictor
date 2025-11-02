@@ -1,26 +1,34 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("taxiForm");
-  const inputs = form.querySelectorAll("input");
+let map = L.map('map').setView([40.7128, -74.0060], 12);
+let markers = [];
 
-  form.addEventListener("submit", () => {
-    const btn = form.querySelector("button");
-    btn.innerText = "Predicting...";
-    btn.disabled = true;
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+document.getElementById("add-location").addEventListener("click", () => {
+  map.once('click', (e) => {
+    let marker = L.marker(e.latlng).addTo(map);
+    markers.push(marker);
+
+    if (markers.length >= 2) {
+      let loc1 = markers[markers.length - 2].getLatLng();
+      let loc2 = markers[markers.length - 1].getLatLng();
+      let distance = map.distance(loc1, loc2) / 1609.34; // meters to miles
+      document.getElementById("trip_distance").value = distance.toFixed(2);
+    }
   });
+});
 
-  // Automatically calculate total when values change
-  const autoSum = () => {
-    const fare = parseFloat(form.fare_amount.value) || 0;
-    const extra = parseFloat(form.extra.value) || 0;
-    const mta = parseFloat(form.mta_tax.value) || 0;
-    const tolls = parseFloat(form.tolls_amount.value) || 0;
-    const imp = parseFloat(form.improvement_surcharge.value) || 0;
-    const cong = parseFloat(form.congestion_surcharge.value) || 0;
-    const airport = parseFloat(form.airport_fee.value) || 0;
-
-    const total = (fare + extra + mta + tolls + imp + cong + airport).toFixed(2);
-    form.dataset.total = total; // store total in dataset (for debugging)
-  };
-
-  inputs.forEach(input => input.addEventListener("input", autoSum));
+document.getElementById("remove-location").addEventListener("click", () => {
+  if (markers.length > 0) {
+    map.removeLayer(markers.pop());
+    if (markers.length < 2) {
+      document.getElementById("trip_distance").value = "";
+    } else {
+      let loc1 = markers[markers.length - 2].getLatLng();
+      let loc2 = markers[markers.length - 1].getLatLng();
+      let distance = map.distance(loc1, loc2) / 1609.34;
+      document.getElementById("trip_distance").value = distance.toFixed(2);
+    }
+  }
 });

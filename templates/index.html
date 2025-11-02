@@ -1,61 +1,50 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="card shadow-lg border-0 rounded-4" style="background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);">
-  <div class="card-body p-5">
-    <h3 class="text-center mb-4 fw-bold text-dark">🚕 Enter Trip Details</h3>
+<div class="card">
+    <h2>Estimate Your Taxi Tip Instantly</h2>
+    
+    <div id="map"></div>
+    <div class="map-controls">
+        <button id="add-location">Add Location</button>
+        <button id="remove-location" class="danger">Remove Last Location</button>
+    </div>
 
-    <form action="/predict" method="POST" class="row g-3" id="taxiForm">
+    <form method="POST" action="/predict">
+        <label for="trip_distance">Trip Distance (miles)</label>
+        <input type="number" id="trip_distance" name="trip_distance" step="0.01" readonly required>
 
-      <!-- Dropdown fields -->
-      <div class="col-md-4">
-        <label class="form-label">Vendor ID</label>
-        <select name="vendor_id" class="form-select form-select-colored" required>
-          <option value="1">1 - Creative Mobile Technologies</option>
-          <option value="2">2 - VeriFone Inc.</option>
+        <label for="fare_amount">Fare Amount ($)</label>
+        <input type="number" id="fare_amount" name="fare_amount" step="0.01" required>
+
+        <label for="passenger_count">Passenger Count</label>
+        <input type="number" name="passenger_count" min="1" max="6" required>
+
+        <label for="ratecode_id">Rate Code</label>
+        <select class="form-select-colored" name="ratecode_id" required>
+            <option value="1">1 - Standard Rate</option>
+            <option value="2">2 - JFK</option>
+            <option value="3">3 - Newark</option>
+            <option value="4">4 - Nassau or Westchester</option>
+            <option value="5">5 - Negotiated Fare</option>
+            <option value="6">6 - Group Ride</option>
         </select>
-      </div>
 
-      <div class="col-md-4">
-        <label class="form-label">Rate Code</label>
-        <select name="ratecode_id" class="form-select form-select-colored" required>
-          <option value="1">1 - Standard rate</option>
-          <option value="2">2 - JFK</option>
-          <option value="3">3 - Newark</option>
-          <option value="4">4 - Nassau/Westchester</option>
-          <option value="5">5 - Negotiated fare</option>
-          <option value="6">6 - Group ride</option>
+        <label for="tolls_amount">Tolls Amount ($)</label>
+        <input type="number" name="tolls_amount" step="0.01" value="0">
+
+        <label for="congestion_surcharge">Congestion Surcharge ($)</label>
+        <select class="form-select-colored" name="congestion_surcharge">
+            <option value="0">0 - No surcharge</option>
+            <option value="2.50">$2.50 (standard congestion)</option>
         </select>
-      </div>
 
-      <div class="col-md-4">
-        <label class="form-label">Payment Type</label>
-        <select name="payment_type" class="form-select form-select-colored" required>
-          <option value="1">1 - Credit Card</option>
-          <option value="2">2 - Cash</option>
-          <option value="3">3 - No Charge</option>
-          <option value="4">4 - Dispute</option>
+        <label for="airport_fee">Airport Fee ($)</label>
+        <select class="form-select-colored" name="airport_fee">
+            <option value="0">0 - None</option>
+            <option value="1.25">$1.25 (LaGuardia/JFK)</option>
         </select>
-      </div>
 
-      <!-- Numeric Inputs -->
-      <div class="col-md-4"><label class="form-label">Passenger Count</label><input type="number" name="passenger_count" class="form-control" required></div>
-      <div class="col-md-4"><label class="form-label">Trip Distance (miles)</label><input type="number" step="0.01" name="trip_distance" class="form-control" required></div>
-      <div class="col-md-4"><label class="form-label">Fare Amount ($)</label><input type="number" step="0.01" name="fare_amount" class="form-control" required></div>
-
-      <div class="col-md-4"><label class="form-label">Extra ($)</label><input type="number" step="0.01" name="extra" class="form-control" value="0"></div>
-      <div class="col-md-4"><label class="form-label">MTA Tax ($)</label><input type="number" step="0.01" name="mta_tax" class="form-control" value="0.5"></div>
-      <div class="col-md-4"><label class="form-label">Tolls ($)</label><input type="number" step="0.01" name="tolls_amount" class="form-control" value="0"></div>
-      <div class="col-md-4"><label class="form-label">Improvement Surcharge ($)</label><input type="number" step="0.01" name="improvement_surcharge" class="form-control" value="0.3"></div>
-      <div class="col-md-4"><label class="form-label">Congestion Surcharge ($)</label><input type="number" step="0.01" name="congestion_surcharge" class="form-control" value="2.5"></div>
-      <div class="col-md-4"><label class="form-label">Airport Fee ($)</label><input type="number" step="0.01" name="airport_fee" class="form-control" value="1.25"></div>
-
-      <div class="col-md-4"><label class="form-label">Pickup Location ID</label><input type="number" name="pu_location_id" class="form-control" required></div>
-      <div class="col-md-4"><label class="form-label">Dropoff Location ID</label><input type="number" name="do_location_id" class="form-control" required></div>
-
-      <div class="col-12 text-center mt-4">
-        <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm">Predict Tip 💰</button>
-      </div>
+        <button type="submit" class="btn-success">Predict Tip</button>
     </form>
-  </div>
 </div>
 {% endblock %}

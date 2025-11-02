@@ -1,16 +1,53 @@
 {% extends "base.html" %}
+
+{% block title %}Prediction Result | NYC Taxi Tip Predictor{% endblock %}
+
 {% block content %}
-<div class="card shadow-lg border-0 rounded-4 text-center p-5" style="background: rgba(255,255,255,0.96); backdrop-filter: blur(12px);">
-  {% if error %}
-    <h4 class="text-danger">⚠️ Error: {{ message }}</h4>
-  {% else %}
-    <h3 class="fw-bold mb-3 text-dark">Predicted Tip 💰</h3>
-    <p class="fs-4 text-success">Estimated Tip: <strong>${{ tip }}</strong></p>
-    <p class="fs-5 text-primary">Tip Percentage: <strong>{{ percent }}%</strong></p>
-    <p class="text-muted">Fare: ${{ fare }} | Distance: {{ distance }} mi | Passengers: {{ passengers }}</p>
-    <p class="text-secondary">Computed Total (without Tip): ${{ computed_total }}</p>
-    <p class="fs-5 text-dark">Total with Tip: <strong>${{ total }}</strong></p>
-  {% endif %}
-  <a href="/" class="btn btn-outline-dark mt-4">🔁 Predict Another</a>
+<div class="card">
+  <h2>🚕 NYC Taxi Tip Prediction Result</h2>
+
+  <div class="result-container">
+    {% if tip and tip is string %}
+      <div class="error-message">
+        <h3>⚠️ Something went wrong</h3>
+        <p>{{ tip }}</p>
+        <a href="/" class="btn-success">🔁 Try Again</a>
+      </div>
+    {% else %}
+      <div class="result-card">
+        <div class="result-header">
+          <h3>💰 Estimated Tip Amount</h3>
+          <p class="result-value">${{ tip }}</p>
+        </div>
+
+        <div class="result-details">
+          <div class="result-item">
+            <span class="label">Trip Distance:</span>
+            <span class="value">{{ distance }} miles</span>
+          </div>
+          <div class="result-item">
+            <span class="label">Fare Amount:</span>
+            <span class="value">${{ fare }}</span>
+          </div>
+          <div class="result-item">
+            <span class="label">Passengers:</span>
+            <span class="value">{{ passengers }}</span>
+          </div>
+          <div class="result-item">
+            <span class="label">Tip Percentage:</span>
+            <span class="value">{{ percent }}%</span>
+          </div>
+          <div class="result-item total">
+            <span class="label">Total With Tip:</span>
+            <span class="value total-amount">${{ total }}</span>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <a href="/" class="btn-success">🔁 Predict Another Ride</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

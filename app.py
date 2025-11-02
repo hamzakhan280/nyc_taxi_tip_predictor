@@ -3,7 +3,6 @@ import joblib
 import pandas as pd
 import os
 
-# Force CPU mode
 os.environ["XGBOOST_ENABLE_GPU"] = "0"
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -17,58 +16,57 @@ def index():
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        vendor_id = int(request.form["vendor_id"])
-        passenger_count = int(request.form["passenger_count"])
         trip_distance = float(request.form["trip_distance"])
-        ratecode_id = int(request.form["ratecode_id"])
-        pu_location_id = int(request.form["pu_location_id"])
-        do_location_id = int(request.form["do_location_id"])
-        payment_type = int(request.form["payment_type"])
         fare_amount = float(request.form["fare_amount"])
-        extra = float(request.form["extra"])
-        mta_tax = float(request.form["mta_tax"])
+        passenger_count = int(request.form["passenger_count"])
         tolls_amount = float(request.form["tolls_amount"])
-        improvement_surcharge = float(request.form["improvement_surcharge"])
         congestion_surcharge = float(request.form["congestion_surcharge"])
         airport_fee = float(request.form["airport_fee"])
+        ratecode_id = int(request.form["ratecode_id"])
 
-        # Auto compute total
-        total_amount = round(fare_amount + extra + mta_tax + tolls_amount +
-                             improvement_surcharge + congestion_surcharge + airport_fee, 2)
+        # Automatically calculate total_amount
+        total_amount = fare_amount + tolls_amount + congestion_surcharge + airport_fee
 
-        # Match model features
+        # Build feature DataFrame (matching model’s training columns)
         features = pd.DataFrame([[
-            vendor_id, passenger_count, trip_distance, ratecode_id,
-            pu_location_id, do_location_id, payment_type, fare_amount,
-            extra, mta_tax, tolls_amount, improvement_surcharge,
-            total_amount, congestion_surcharge, airport_fee
+            1,  # VendorID default
+            passenger_count,
+            trip_distance,
+            ratecode_id,
+            132,  # PULocationID placeholder
+            265,  # DOLocationID placeholder
+            1,    # payment_type (cash)
+            fare_amount,
+            0.5,  # extra
+            0.5,  # mta_tax
+            tolls_amount,
+            0.3,  # improvement_surcharge
+            total_amount,
+            congestion_surcharge,
+            airport_fee
         ]], columns=[
-            "VendorID", "passenger_count", "trip_distance", "RatecodeID",
-            "PULocationID", "DOLocationID", "payment_type", "fare_amount",
-            "extra", "mta_tax", "tolls_amount", "improvement_surcharge",
-            "total_amount", "congestion_surcharge", "airport_fee"
+            'VendorID','passenger_count','trip_distance','RatecodeID','PULocationID',
+            'DOLocationID','payment_type','fare_amount','extra','mta_tax','tolls_amount',
+            'improvement_surcharge','total_amount','congestion_surcharge','airport_fee'
         ])
 
-        # Prediction
         tip_pred = float(model.predict(features)[0])
         tip_pred = round(tip_pred, 2)
         tip_percent = round((tip_pred / fare_amount) * 100, 2)
-        total_with_tip = round(total_amount + tip_pred, 2)
+        total_with_tip = round(fare_amount + tip_pred, 2)
 
         return render_template(
             "result.html",
-            error=False,
             tip=tip_pred,
             distance=trip_distance,
             fare=fare_amount,
             passengers=passenger_count,
             percent=tip_percent,
-            total=total_with_tip,
-            computed_total=total_amount
+            total=total_with_tip
         )
 
     except Exception as e:
-        return render_template("result.html", error=True, message=str(e))
+        return render_template("result.html", tip=f"Error: {e}")
 
 if __name__ == "__main__":
     app.run(debug=True)
